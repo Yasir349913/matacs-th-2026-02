@@ -6,9 +6,9 @@ Reference: MATACS-TH-2026-02
 
 - I treated "last 5 years" as 2021 onwards, since it is 2026 now.
 - I gave full experience marks at 12 or more installs. I picked 12 myself. In a real tool the admin should be able to set this.
-- For the price score, I compare each bid to the lowest price among the bids that pass the mandatory checks.
+- For the price score, I compare each bid to the lowest price among the bids that pass the mandatory checks. This includes flagged bids, so D's price sets the baseline. B is left out because it is ineligible. If a flagged bid is later removed, the other price scores are recalculated.
 - If a proposal says something will be "confirmed after award", I don't count it as something the bidder has today.
-- If an important detail is missing (like D's schedule), I flag the proposal for a person to look at. I don't reject it.
+- If an important detail is missing (like D's schedule), I flag the proposal for a person to look at. I don't reject it. Flagged proposals are not ranked until a person clears them.
 - The scoring formulas I used are examples. The real ones would come from the admin screens.
 
 ## 1. AI vs. rules
@@ -29,7 +29,7 @@ The AI's wording can still change a little between runs, so I would save the fir
 
 For each proposal the reviewer can see every criterion score, the formula, the value found, the exact quote from the proposal, the confidence, and a one-line reason.
 
-For the samples I expect A first (90.5), E second (79.4), C and D flagged, and B ineligible.
+For the samples I expect A first (90.5), E second (79.4), C and D flagged, and B ineligible. If a reviewer clears the flags, D would score about 74.2 (timeline counted as zero) and C about 70.7, which would place them third and fourth.
 
 ## 3. Human in the loop
 

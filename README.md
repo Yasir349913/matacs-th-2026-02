@@ -3,7 +3,7 @@
 **Name:** Yasir Maqsood
 **Reference:** MATACS-TH-2026-02
 **Role:** Associate Software Developer
-**Time actually spent:** About 60 minutes
+**Time actually spent:** About 70 minutes in total: about 40 minutes on the design (write-up, prompts, diagram, ranking) and about 30 minutes on the optional prototype.
 
 ## What this is
 
@@ -15,12 +15,12 @@ My design for an AI-assisted proposal triage tool for the Commercial Solar Insta
 - [PROMPTS.md](PROMPTS.md): extraction prompt and reason prompt
 - [ranking.json](ranking.json): my expected ranking of proposals A to E
 - [diagram/process-flow.png](diagram/process-flow.png): process flow from upload to ranked output
+- [prototype/](prototype/): optional script for scoring, extraction and 33 offline tests
+- [prototype/README.md](prototype/README.md): how to run the prototype
 
 ## How I used AI tools
 
-I read the brief twice myself first, then used Claude to talk through the requirements, plan the flow, draft the prompts and check the edge cases in the sample set (B's licence promise, C's embedded instruction, D's missing schedule). I reviewed its work against the brief instead of accepting it as it was.
-
-For example, its first write-up sounded too stiff and generic, so I asked for a plainer version and edited it in my own words. I also checked the brief's rules for the diagram before choosing the PNG format, to make sure it met the requirement.
+I used Claude to talk through the requirements, draft the prompts and check the edge cases in the sample set. I did not accept its work as it was: its first write-up was too stiff and generic for a non-developer reader, which goes against the brief's request for plain writing, so I rewrote it in my own words. I also checked its output against the brief myself, including the file names, the word limit and the format rules.
 
 ## Note on the samples
 

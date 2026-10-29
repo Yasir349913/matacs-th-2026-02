@@ -8,13 +8,13 @@ Small optional script that shows the design working. No deployment.
 | `extract.py`             | Runs the extraction prompt from `../PROMPTS.md` on local proposal files and checks every quote. Needs an API key. |
 | `score.py`               | Mandatory checks, flags, weighted scoring and ranking. Plain code, no AI, no packages needed.                     |
 | `test_prototype.py`      | 33 offline tests: wrong inputs, prompt-injection cases, quote checking. No key needed.                            |
-| `extracted_example.json` | Example of what the extraction step returns for A to E (facts only, no proposal text).                            |
+| `extracted_example.json` | Hand-written example of what the extraction step returns for A to E (facts only, no proposal text).               |
 
 ## Run the scoring (no key needed)
 
     python score.py
 
-It prints the score breakdown and writes `output_ranking.json`, which matches `../ranking.json`.
+It prints the score breakdown and writes `output_ranking.json`, which has the same ranks, statuses and scores as `../ranking.json`. The one-line reasons are worded differently.
 
 ## Run the tests (no key needed)
 
@@ -27,4 +27,4 @@ It prints the score breakdown and writes `output_ranking.json`, which matches `.
 3. Put one text file per proposal in `prototype/proposals/` (`A.txt`, `B.txt` ...). This folder is git-ignored, so proposal text is never committed.
 4. `python extract.py`, then `python score.py extracted_live.json`
 
-Not tested against the live API in this repository. The scoring and the offline tests were run.
+Not tested against the live API in this repository. The scoring and the offline tests were run on the hand-written example.

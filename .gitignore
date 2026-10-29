@@ -1,0 +1,6 @@
+.env
+prototype/.env
+prototype/proposals/
+prototype/extracted_live.json
+prototype/output_ranking.json
+__pycache__/

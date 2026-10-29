@@ -1,0 +1,23 @@
+{
+  "category": "Commercial Solar Installation",
+  "current_year": 2026,
+  "budget_ceiling_cad": 260000,
+  "max_weeks": 16,
+  "min_insurance_cad": 5000000,
+  "install_window_years": 5,
+  "weights": {
+    "experience": 30,
+    "price": 25,
+    "timeline": 15,
+    "warranty": 15,
+    "team": 15
+  },
+  "params": {
+    "experience_cap_installs": 12,
+    "full_marks_weeks": 8,
+    "panel_warranty_cap_years": 25,
+    "workmanship_warranty_cap_years": 12,
+    "panel_share_of_warranty": 0.5,
+    "team_points": { "named_project_lead": 4, "crew_size": 3, "safety_plan": 4, "monitoring_plan_months": 4 }
+  }
+}

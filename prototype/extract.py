@@ -115,8 +115,8 @@ def main():
         result = extract_one(client, model, system, user_tpl, fields_json, pid,
                              path.read_text(encoding="utf-8"))
         if result is None:
-            print(f"  {pid}: giving up, send to human review")
-            continue
+             print(f"  {pid}: giving up, it will be flagged for human review")
+             result = {"injection_flags": [], "fields": {}, "error": "extraction failed"}
         out[pid] = result
 
     OUT_FILE.write_text(json.dumps(out, indent=2), encoding="utf-8")

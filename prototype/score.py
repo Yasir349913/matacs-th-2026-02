@@ -22,10 +22,34 @@ CORE_FIELDS = [
 ]
 
 
+BOOL_FIELDS = {"licence_held", "wsib_clearance", "named_project_lead", "safety_plan"}
+POSITIVE_FIELDS = {"total_price_cad", "timeline_weeks"}  # must be above zero
+NUMBER_FIELDS = {
+    "liability_insurance_cad", "qualifying_install_count", "install_period_start_year",
+    "total_price_cad", "timeline_weeks", "panel_warranty_years",
+    "workmanship_warranty_years", "crew_size", "monitoring_plan_months",
+}
+
+
 def val(fields, key):
-    """Value of a field, only if the AI marked it as found. Otherwise None."""
-    f = fields.get(key) or {}
-    return f.get("value") if f.get("status") == "found" else None
+    """Value of a field, only if the AI marked it as found AND it has the right type.
+
+    Wrong type (text instead of a number, a number in a yes/no field, negative
+    numbers, zero price) is treated as missing, so bad data can never crash the
+    scoring or sneak into a score.
+    """
+    f = fields.get(key)
+    if not isinstance(f, dict) or f.get("status") != "found":
+        return None
+    v = f.get("value")
+    if key in BOOL_FIELDS:
+        return v if isinstance(v, bool) else None
+    if key in NUMBER_FIELDS:
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or v != v or v < 0:
+            return None
+        if key in POSITIVE_FIELDS and v == 0:
+            return None
+    return v
 
 
 def check_mandatory(fields, c):
@@ -49,7 +73,7 @@ def find_flags(item, c):
         flags.append("contains an instruction aimed at automated systems (ignored)")
     for key in CORE_FIELDS:
         if val(fields, key) is None:
-            flags.append(f"{key} is missing or not committed")
+            flags.append(f"{key} is missing, invalid or not committed")
     price = val(fields, "total_price_cad")
     if price is not None and price > c["budget_ceiling_cad"]:
         flags.append("price is over the budget ceiling")
@@ -59,7 +83,12 @@ def find_flags(item, c):
     start = val(fields, "install_period_start_year")
     if start is not None and start < c["current_year"] - c["install_window_years"]:
         flags.append("installs start before the 5-year window, count needs checking")
-    low = [k for k, f in fields.items() if f.get("confidence") == "low"]
+    for key in (BOOL_FIELDS | NUMBER_FIELDS) - set(CORE_FIELDS):
+        f = fields.get(key)
+        if isinstance(f, dict) and f.get("status") == "found" and f.get("value") is not None \
+                and val(fields, key) is None:
+            flags.append(f"invalid value in {key}")
+    low = [k for k, f in fields.items() if isinstance(f, dict) and f.get("confidence") == "low"]
     if low:
         flags.append("low confidence: " + ", ".join(low))
     return flags
@@ -100,28 +129,44 @@ def score_one(fields, lowest_price, c):
     return {k: round(v, 2) for k, v in s.items()}
 
 
+def clean_item(item):
+    """Return (fields, injection_flags). Anything unusable gives empty fields."""
+    if not isinstance(item, dict) or not isinstance(item.get("fields"), dict):
+        return {}, []
+    flags = item.get("injection_flags")
+    return item["fields"], flags if isinstance(flags, list) else []
+
+
 def run(data, c):
+    cleaned = {pid: clean_item(item) for pid, item in data.items()}
     results = {}
-    for pid, item in data.items():
+    for pid, (fields, injections) in cleaned.items():
+        if not fields:
+            # Extraction failed or came back unusable: a human must look, nothing is scored.
+            results[pid] = {"failed": [], "status": "flagged",
+                            "flags": ["no usable extraction, needs human review"]}
+            continue
         results[pid] = {
-            "failed": check_mandatory(item["fields"], c),
-            "flags": find_flags(item, c),
+            "failed": check_mandatory(fields, c),
+            "flags": find_flags({"fields": fields, "injection_flags": injections}, c),
         }
 
     # Price is compared with the lowest price among bids that pass the mandatory checks.
     prices = [
-        val(data[pid]["fields"], "total_price_cad")
+        val(cleaned[pid][0], "total_price_cad")
         for pid, r in results.items()
-        if not r["failed"]
+        if "status" not in r and not r["failed"]
     ]
     prices = [p for p in prices if p is not None and p <= c["budget_ceiling_cad"]]
     lowest = min(prices) if prices else 1
 
     for pid, r in results.items():
+        if "status" in r:
+            continue  # already flagged: no usable extraction
         if r["failed"]:
             r["status"] = "ineligible"
         else:
-            r["breakdown"] = score_one(data[pid]["fields"], lowest, c)
+            r["breakdown"] = score_one(cleaned[pid][0], lowest, c)
             r["total"] = round(sum(r["breakdown"].values()), 1)
             r["status"] = "flagged" if r["flags"] else "ranked"
 
